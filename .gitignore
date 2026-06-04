@@ -36,7 +36,6 @@ yarn-error.log*
 *.sw?
 
 # Project specific
-supabase-config.js
 check_supabase.js
 test_update.js
 update_kim_training.js
