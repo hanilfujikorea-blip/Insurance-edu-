@@ -1,0 +1,17 @@
+{
+  "name": "업무 통합 관리 시스템",
+  "short_name": "업무관리",
+  "description": "청년장려금, 차량보험, 외부교육 통합 관리 대시보드",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f111a",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3589/3589030.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
