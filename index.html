@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>업무 통합 관리 시스템</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- 엑셀 파싱을 위한 SheetJS CDN 주입 -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  </head>
+  <body class="table-view tab-grant">
+    
+    <!-- 미려한 최상단 탭 네비게이션 바 -->
+    <nav class="app-navbar no-print">
+      <div class="navbar-container">
+        <div class="brand">INTEGRATED DASHBOARD</div>
+        <div class="nav-tabs" role="tablist">
+          <button id="tabBtnGrant" class="nav-tab active" role="tab" aria-selected="true" aria-controls="grantView" type="button">
+            <span>청년일자리도약장려금</span>
+          </button>
+          <button id="tabBtnInsurance" class="nav-tab" role="tab" aria-selected="false" aria-controls="insuranceView" type="button">
+            <span>차량보험 관리</span>
+          </button>
+          <button id="tabBtnTraining" class="nav-tab" role="tab" aria-selected="false" aria-controls="trainingView" type="button">
+            <span>외부교육 관리</span>
+          </button>
+        </div>
+        <div id="liveClock" class="live-clock"></div>
+      </div>
+    </nav>
+
+    <!-- 탭 1: 청년일자리도약장려금 화면 -->
+    <div id="grantView" class="tab-content-panel active">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">청년일자리도약장려금</p>
+          <h1>신청 이력 관리</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="exportCsvBtn" class="secondary-button" type="button">엑셀용 CSV 내보내기</button>
+          <button id="addPersonBtn" class="primary-button" type="button">직원 추가</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="summary-grid" aria-label="장려금 요약">
+          <article class="summary-card">
+            <span>표시 인원</span>
+            <strong id="totalPeople">0</strong>
+          </article>
+          <article class="summary-card">
+            <span>12개월 수령완료</span>
+            <strong id="completedPeople">0</strong>
+          </article>
+          <article class="summary-card">
+            <span>이번 달 확인 필요</span>
+            <strong id="dueThisMonth">0</strong>
+          </article>
+          <article class="summary-card">
+            <span>수령완료 금액</span>
+            <strong id="totalAmount">0원</strong>
+          </article>
+        </section>
+
+        <section class="toolbar" aria-label="검색 및 필터">
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="회사, 부서, 팀, 성명 검색" />
+          </div>
+          <div class="segmented" role="group" aria-label="회사 필터">
+            <button class="segment active" type="button" data-company="all">전체</button>
+            <button class="segment" type="button" data-company="HFK">HFK</button>
+            <button class="segment" type="button" data-company="FGL">FGL</button>
+            <button class="segment" type="button" data-company="KITOS">KITOS</button>
+            <button class="segment" type="button" data-company="IMEX">IMEX</button>
+            <button class="segment" type="button" data-company="KTECH">KTECH</button>
+          </div>
+          <div class="segmented" role="group" aria-label="사업년도 필터">
+            <button class="segment active" type="button" data-year="all">전체년도</button>
+            <button class="segment" type="button" data-year="2025">2025</button>
+            <button class="segment" type="button" data-year="2026">2026</button>
+          </div>
+          <div class="segmented" role="group" aria-label="상태 필터">
+            <button class="segment active" type="button" data-status="all">전체</button>
+            <button class="segment" type="button" data-status="open">진행중</button>
+            <button class="segment" type="button" data-status="done">수령완료</button>
+            <button class="segment" type="button" data-status="due">확인필요</button>
+          </div>
+          <div class="segmented view-toggle" role="group" aria-label="보기 방식">
+            <button class="segment" type="button" data-view="card">카드</button>
+            <button class="segment active" type="button" data-view="table">리스트</button>
+          </div>
+        </section>
+
+        <section id="cardGrid" class="card-grid" aria-label="직원 신청 카드"></section>
+
+        <section class="table-shell" aria-label="직원 신청 이력">
+          <table>
+            <thead>
+              <tr>
+                <th>회사</th>
+                <th>부서명</th>
+                <th>팀명</th>
+                <th>직위</th>
+                <th>성명</th>
+                <th>입사일</th>
+                <th>신청기간</th>
+                <th>6개월</th>
+                <th>9개월</th>
+                <th>12개월</th>
+                <th>수령완료 금액</th>
+                <th>지원금 신청상태</th>
+                <th>4대보험 신청</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="peopleTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <!-- 탭 2: 차량보험 관리 화면 -->
+    <div id="insuranceView" class="tab-content-panel">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">2026 Vehicle Insurance</p>
+          <h1>차량 보험 통합 관리</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="exportInsuranceCsvBtn" class="secondary-button" type="button">엑셀용 CSV 내보내기</button>
+          <button id="addInsuranceBtn" class="primary-button color-purple" type="button">신규 차량 등록</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="summary-grid" aria-label="보험 요약">
+          <article class="summary-card">
+            <span>전체 차량</span>
+            <strong id="totalVehicles">0대</strong>
+          </article>
+          <article class="summary-card">
+            <span>한일후지코리아 (HFK)</span>
+            <strong id="hfkVehicles">0대</strong>
+          </article>
+          <article class="summary-card">
+            <span>후지글로벌로지스틱 (FGL)</span>
+            <strong id="fglVehicles">0대</strong>
+          </article>
+          <article class="summary-card">
+            <span>총 보험료</span>
+            <strong id="totalPremium">0원</strong>
+          </article>
+        </section>
+
+        <section class="toolbar" aria-label="보험 검색 및 필터">
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="insuranceSearchInput" type="search" placeholder="차량번호, 차종명, 보험사명 검색" />
+          </div>
+          <div class="segmented" role="group" aria-label="소속 필터">
+            <button class="segment active" type="button" data-ins-contractor="all">전체사업장</button>
+            <button class="segment" type="button" data-ins-contractor="HFK">HFK</button>
+            <button class="segment" type="button" data-ins-contractor="FGL">FGL</button>
+          </div>
+          <div class="segmented" role="group" aria-label="보험사 필터">
+            <button class="segment active" type="button" data-ins-insurer="all">전체 보험사</button>
+            <button class="segment" type="button" data-ins-insurer="삼성화재">삼성화재</button>
+            <button class="segment" type="button" data-ins-insurer="현대해상">현대해상</button>
+            <button class="segment" type="button" data-ins-insurer="메리츠화재">메리츠화재</button>
+          </div>
+          <div class="segmented ins-view-toggle" role="group" aria-label="보험 보기 방식">
+            <button class="segment active" type="button" data-ins-view="card">카드</button>
+            <button class="segment" type="button" data-ins-view="table">리스트</button>
+          </div>
+        </section>
+
+        <section id="insuranceCardGrid" class="insurance-card-grid" aria-label="차량 보험 카드"></section>
+
+        <section id="insuranceTableShell" class="table-shell" aria-label="차량 보험 리스트" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>소속</th>
+                <th>보험사 / 차량번호</th>
+                <th>차량명</th>
+                <th>연식</th>
+                <th>만료일</th>
+                <th>보험료</th>
+                <th>납부상태</th>
+                <th>메모</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="insuranceTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <!-- 탭 3: 외부교육 관리 화면 (신규) -->
+    <div id="trainingView" class="tab-content-panel">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">2026 Training Manager</p>
+          <h1>외부 교육 통합 관리</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="addTrainingBtn" class="primary-button color-purple" type="button">교육 추가</button>
+          <button class="secondary-button" id="uploadTrainingTrigger" type="button">
+            <span>엑셀 파일 업로드 (.xlsx)</span>
+          </button>
+          <input type="file" id="trainingExcelUpload" accept=".xlsx, .xls" hidden />
+        </div>
+      </header>
+
+      <main>
+        <section class="summary-grid" aria-label="교육 요약">
+          <article class="summary-card">
+            <span>전체 교육 계획</span>
+            <strong id="totalTrainings">0건</strong>
+          </article>
+          <article class="summary-card">
+            <span>한일후지코리아 (HFK)</span>
+            <strong id="hfkTrainings">0건</strong>
+          </article>
+          <article class="summary-card">
+            <span>후지글로벌로지스틱 (FGL)</span>
+            <strong id="fglTrainings">0건</strong>
+          </article>
+          <article class="summary-card">
+            <span>총 순소요예산</span>
+            <strong id="totalNetFee">0원</strong>
+          </article>
+        </section>
+
+        <section class="toolbar" aria-label="교육 검색 및 필터">
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="trainingSearchInput" type="search" placeholder="성명, 부서, 교육명, 교육기관 검색..." />
+          </div>
+          <div class="segmented" role="group" aria-label="교육 소속 필터">
+            <button class="segment active" type="button" data-tr-affiliation="all">전체 사업장</button>
+            <button class="segment" type="button" data-tr-affiliation="한일후지코리아">HFK</button>
+            <button class="segment" type="button" data-tr-affiliation="후지글로벌로지스틱">FGL</button>
+          </div>
+          <div class="sort-group" style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+            <span style="font-size: 13px; color: var(--muted); font-weight:800;">정렬:</span>
+            <select id="trainingSortSelect" style="min-height:36px; min-width:140px; border-radius:10px; font-size:13px; background: rgba(255,255,255,0.06);">
+              <option value="date_iso">날짜 빠른순</option>
+              <option value="course">교육과정명순</option>
+              <option value="name">성명순</option>
+            </select>
+          </div>
+          <div class="segmented tr-view-toggle" role="group" aria-label="교육 보기 방식">
+            <button class="segment active" type="button" data-tr-view="card">카드</button>
+            <button class="segment" type="button" data-tr-view="table">리스트</button>
+          </div>
+        </section>
+
+        <section id="trainingCardGrid" class="insurance-card-grid" aria-label="교육 일정 카드"></section>
+
+        <section id="trainingTableShell" class="table-shell" aria-label="교육 일정 리스트" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>소속</th>
+                <th>교육과정명</th>
+                <th>교육 대상자</th>
+                <th>소속 부서 / 팀</th>
+                <th>교육 기간</th>
+                <th>교육비</th>
+                <th>환급금액</th>
+                <th>실부담금</th>
+                <th>교육기관</th>
+                <th>입금여부</th>
+                <th>환급여부</th>
+                <th>수료보고서</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="trainingTableBody"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <!-- 1. 직원 관리 다이얼로그 (기존 유지) -->
+    <dialog id="personDialog">
+      <form id="personForm" method="dialog">
+        <div class="dialog-header">
+          <h2 id="dialogTitle">직원 추가</h2>
+          <button class="icon-button" id="closeDialogBtn" type="button" aria-label="닫기">×</button>
+        </div>
+
+        <input id="personId" type="hidden" />
+        <div class="form-grid">
+          <label>
+            회사
+            <select id="company" required>
+              <option value="HFK">HFK</option>
+              <option value="FGL">FGL</option>
+              <option value="KITOS">KITOS</option>
+              <option value="IMEX">IMEX</option>
+              <option value="KTECH">KTECH</option>
+            </select>
+          </label>
+          <label>부서명 <input id="department" required /></label>
+          <label>팀명 <input id="team" /></label>
+          <label>직위 <input id="position" required /></label>
+          <label>성명 <input id="name" required /></label>
+          <label>입사일 <input id="hireDate" type="date" required /></label>
+          <label>신청기간 <input id="applicationPeriod" placeholder="예: 26년도 신청" required /></label>
+          <label class="check-label insurance-check"><input id="insuranceApplied" type="checkbox" /> 4대보험 신청완료</label>
+        </div>
+
+        <fieldset class="milestone-fieldset">
+          <legend>회차별 상태</legend>
+          <div class="milestone-form-grid">
+            <div class="milestone-form-row">
+              <strong>6개월</strong>
+              <label class="check-label"><input id="m6Applied" type="checkbox" /> 신청완료</label>
+              <label class="check-label"><input id="m6Received" type="checkbox" /> 수령완료</label>
+            </div>
+            <div class="milestone-form-row">
+              <strong>9개월</strong>
+              <label class="check-label"><input id="m9Applied" type="checkbox" /> 신청완료</label>
+              <label class="check-label"><input id="m9Received" type="checkbox" /> 수령완료</label>
+            </div>
+            <div class="milestone-form-row">
+              <strong>12개월</strong>
+              <label class="check-label"><input id="m12Applied" type="checkbox" /> 신청완료</label>
+              <label class="check-label"><input id="m12Received" type="checkbox" /> 수령완료</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="dialog-actions">
+          <button class="secondary-button" id="cancelDialogBtn" type="button">취소</button>
+          <button class="primary-button" type="submit">저장</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 2. 신규 차량 보험 추가/수정 다이얼로그 (기존 유지) -->
+    <dialog id="insuranceDialog">
+      <form id="insuranceForm" method="dialog">
+        <div class="dialog-header">
+          <h2 id="insuranceDialogTitle">신규 차량 등록</h2>
+          <button class="icon-button" id="closeInsuranceDialogBtn" type="button" aria-label="닫기">×</button>
+        </div>
+
+        <input id="insuranceId" type="hidden" />
+        <div class="form-grid">
+          <label>
+            소속 사업장
+            <select id="insContractor" required>
+              <option value="한일후지코리아(HFK)">HFK (한일후지코리아)</option>
+              <option value="후지글로벌로지스틱(FGL)">FGL (후지글로벌로지스틱)</option>
+            </select>
+          </label>
+          <label>
+            보험사
+            <select id="insInsurer" required>
+              <option value="삼성화재">삼성화재</option>
+              <option value="현대해상">현대해상</option>
+              <option value="메리츠화재">메리츠화재</option>
+              <option value="custom">직접 입력...</option>
+            </select>
+          </label>
+          <label id="insInsurerCustomLabel" style="display: none;">
+            보험사 직접입력
+            <input id="insInsurerCustom" placeholder="보험사 이름 입력" />
+          </label>
+          <label>차량번호 <input id="insCarNumber" placeholder="예: 12가 3456" required /></label>
+          <label>차량명 <input id="insCarName" placeholder="예: 아반떼, 포터" required /></label>
+          <label>연식 (년형) <input id="insYear" type="number" value="2026" required /></label>
+          <label>보험 시작일 <input id="insStartDate" type="date" required /></label>
+          <label>보험 만료일 <input id="insEndDate" type="date" required /></label>
+          <label>보험료 (원) <input id="insPremium" type="number" placeholder="원 단위 숫자로만 입력" required /></label>
+          <label>
+            납부상태
+            <select id="insPaymentStatus" required>
+              <option value="O">완납</option>
+              <option value="X">미납</option>
+            </select>
+          </label>
+          <label class="full-width">메모 / 특이사항 <input id="insMemo" placeholder="차량 관리 담당자, 할인 조건 등 자유로운 메모" /></label>
+        </div>
+
+        <div class="dialog-actions" style="margin-top: 24px;">
+          <button class="secondary-button" id="cancelInsuranceDialogBtn" type="button">취소</button>
+          <button class="primary-button color-purple" type="submit">저장</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 4. 외부교육 계획 추가/수정 다이얼로그 (신규) -->
+    <dialog id="trainingDialog">
+      <form id="trainingForm" method="dialog">
+        <div class="dialog-header">
+          <h2 id="trainingDialogTitle">교육 정보 수정</h2>
+          <button class="icon-button" id="closeTrainingDialogBtn" type="button" aria-label="닫기">×</button>
+        </div>
+
+        <input id="trainingId" type="hidden" />
+        <div class="form-grid">
+          <label>
+            소속 사업장
+            <select id="trAffiliation" required>
+              <option value="한일후지코리아">HFK (한일후지코리아)</option>
+              <option value="후지글로벌로지스틱">FGL (후지글로벌로지스틱)</option>
+            </select>
+          </label>
+          <label>교육 대상자 (성명) <input id="trName" required /></label>
+          <label>부서명 <input id="trDepartment" required /></label>
+          <label>팀명 <input id="trTeam" /></label>
+          <label class="full-width">교육과정명 <input id="trCourse" required /></label>
+          <label>교육 기관 <input id="trVendor" required /></label>
+          <label>교육 날짜 표기 <input id="trDateStr" placeholder="예: 4/16~17" required /></label>
+          <label>정렬용 대표 날짜 <input id="trDateIso" type="date" required /></label>
+          <label>교육비 (원) <input id="trFee" type="number" required /></label>
+          <label>예상 환급금 (원) <input id="trRefund" type="number" required /></label>
+          <label>실 부담금 (원) <input id="trNetFee" type="number" required /></label>
+          <label>교육비 입금일 <input id="trPaymentDate" type="date" /></label>
+          <label>교육비 환급일 <input id="trRefundDate" type="date" /></label>
+          <label>수료보고서 제출일 <input id="trReportDate" type="date" /></label>
+        </div>
+
+        <div class="dialog-actions" style="margin-top: 24px;">
+          <button class="secondary-button" id="cancelTrainingDialogBtn" type="button">취소</button>
+          <button class="primary-button color-purple" type="submit">저장</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 3. 외부교육 임박 모달 알림창 -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+      <div class="modal" style="background: var(--panel-strong); border: 1px solid var(--line); border-radius: 24px; width: min(580px, calc(100vw - 32px)); padding: 26px; box-shadow: var(--shadow);">
+        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+          <h2 style="font-size:20px; font-weight:900; color:#fbbf24; margin:0;">📢 이번 주 교육 일정 안내 (D-7 이내)</h2>
+          <button id="close-modal" class="icon-button" style="border-radius:50%; width:30px; height:30px; font-size:18px; line-height:1;">&times;</button>
+        </div>
+        <div class="modal-body" id="upcoming-trainings-list" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+          <!-- 이번 주에 예정된 교육 내용 리스트 주입 -->
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:flex-end;">
+          <button id="modal-confirm" class="primary-button" style="min-width: 100px;">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./supabase-config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
