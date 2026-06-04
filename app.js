@@ -1598,7 +1598,7 @@ function renderTraining() {
     return `
       <tr onclick="openTrainingDialog('${item.id}')" style="cursor:pointer;">
         <td style="font-weight:800;">${contractorShort}</td>
-        <td style="text-align:left; font-weight:800; max-width:210px; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(item.course)}">
+        <td style="text-align:left; font-weight:800;" title="${escapeHtml(item.course)}">
           ${escapeHtml(item.course)}
         </td>
         <td style="font-weight:800; color:#fff;">${escapeHtml(item.name)}</td>
@@ -1610,7 +1610,7 @@ function renderTraining() {
         <td class="money" style="color:var(--muted);">${formatMoney(item.fee)}</td>
         <td class="money" style="color:var(--muted);">${formatMoney(item.refund)}</td>
         <td class="money" style="font-weight:800; color:#34d399;">${formatMoney(item.net_fee)}</td>
-        <td style="text-align:left; max-width:140px; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(item.vendor)}">
+        <td style="text-align:left;" title="${escapeHtml(item.vendor)}">
           ${escapeHtml(item.vendor || "-")}
         </td>
         
