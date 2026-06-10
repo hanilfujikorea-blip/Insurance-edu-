@@ -1,0 +1,6 @@
+{
+  "name": "신규 입사자 온보딩 허브",
+  "description": "신규 입사자를 위한 근로·연봉 전자기술 계약 체결 및 통근버스, 사내식당, 주차 등록 등 필수 사내 정보 안내 통합 플랫폼",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

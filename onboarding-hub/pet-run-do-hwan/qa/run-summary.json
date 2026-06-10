@@ -1,0 +1,9 @@
+{
+    "ok":  true,
+    "run_dir":  "C:\\Users\\Felix\\신규-입사자-온보딩-허브\\pet-run-do-hwan",
+    "spritesheet":  "C:\\Users\\Felix\\신규-입사자-온보딩-허브\\pet-run-do-hwan\\final\\spritesheet.webp",
+    "validation":  "C:\\Users\\Felix\\신규-입사자-온보딩-허브\\pet-run-do-hwan\\final\\validation.json",
+    "contact_sheet":  "C:\\Users\\Felix\\신규-입사자-온보딩-허브\\pet-run-do-hwan\\qa\\contact-sheet.png",
+    "review":  "C:\\Users\\Felix\\신규-입사자-온보딩-허브\\pet-run-do-hwan\\qa\\review.json",
+    "package":  "C:\\Users\\Felix\\.codex\\pets\\do-hwan"
+}
