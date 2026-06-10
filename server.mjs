@@ -9,13 +9,33 @@ const contentTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
 };
 
 const server = createServer(async (request, response) => {
   try {
-    const pathname = decodeURIComponent(new URL(request.url, `http://${request.headers.host}`).pathname);
-    const target = resolve(join(root, pathname === "/" ? "index.html" : pathname));
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    let pathname = decodeURIComponent(url.pathname);
+    console.log(`[Request] ${pathname}`);
+    
+    let targetPath = pathname === "/" ? "index.html" : pathname;
+
+    // Handle onboarding specific routing
+    if (pathname.startsWith("/onboarding")) {
+      // If it's just /onboarding or /onboarding/, serve the index.html
+      if (pathname === "/onboarding" || pathname === "/onboarding/") {
+        targetPath = "/onboarding/index.html";
+      } else {
+        // For assets, ensure they are looked up relative to the root or onboarding folder
+        // The requester (iframe) might use ./assets/ which becomes /onboarding/assets/
+        // Our folder is named 'onboarding' (the built dist)
+        targetPath = pathname;
+      }
+    }
+
+    const target = resolve(join(root, targetPath));
+    console.log(`[Resolved] ${target}`);
 
     if (!target.startsWith(root)) {
       response.writeHead(403);

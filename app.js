@@ -62,9 +62,11 @@ const elements = {
   tabBtnGrant: document.querySelector("#tabBtnGrant"),
   tabBtnInsurance: document.querySelector("#tabBtnInsurance"),
   tabBtnTraining: document.querySelector("#tabBtnTraining"),
+  tabBtnOnboarding: document.querySelector("#tabBtnOnboarding"),
   grantView: document.querySelector("#grantView"),
   insuranceView: document.querySelector("#insuranceView"),
   trainingView: document.querySelector("#trainingView"),
+  onboardingView: document.querySelector("#onboardingView"),
 
   // 청년장려금 엘리먼트 (기존 유지)
   addPersonBtn: document.querySelector("#addPersonBtn"),
@@ -201,6 +203,7 @@ const trFields = {
 elements.tabBtnGrant.addEventListener("click", () => switchTab("grant"));
 elements.tabBtnInsurance.addEventListener("click", () => switchTab("insurance"));
 elements.tabBtnTraining.addEventListener("click", () => switchTab("training"));
+elements.tabBtnOnboarding.addEventListener("click", () => switchTab("onboarding"));
 
 // 청년장려금 리스너 (기존 유지)
 elements.addPersonBtn.addEventListener("click", () => openDialog());
@@ -393,10 +396,12 @@ function switchTab(tabName) {
   elements.tabBtnGrant.classList.remove("active");
   elements.tabBtnInsurance.classList.remove("active");
   elements.tabBtnTraining.classList.remove("active");
+  elements.tabBtnOnboarding.classList.remove("active");
   elements.grantView.classList.remove("active");
   elements.insuranceView.classList.remove("active");
   elements.trainingView.classList.remove("active");
-  document.body.classList.remove("tab-grant", "tab-insurance", "tab-training");
+  elements.onboardingView.classList.remove("active");
+  document.body.classList.remove("tab-grant", "tab-insurance", "tab-training", "tab-onboarding");
 
   if (tabName === "grant") {
     elements.tabBtnGrant.classList.add("active");
@@ -413,6 +418,25 @@ function switchTab(tabName) {
     elements.trainingView.classList.add("active");
     document.body.classList.add("tab-training");
     renderTraining();
+  } else if (tabName === "onboarding") {
+    elements.tabBtnOnboarding.classList.add("active");
+    elements.onboardingView.classList.add("active");
+    document.body.classList.add("tab-onboarding");
+    
+    // Theme sync for iframe
+    const iframe = document.querySelector("#onboardingIframe");
+    if (iframe && iframe.contentWindow) {
+      // The onboarding hub uses 'light' | 'dark' classes on its html element
+      // and 'next_onboarding_theme' in its localStorage.
+      // Since it's a separate app, we can't easily reach inside if it's on a different origin,
+      // but here it's on the same origin.
+      try {
+        iframe.contentWindow.localStorage.setItem('next_onboarding_theme', 'dark');
+        iframe.contentWindow.document.documentElement.classList.add('dark');
+      } catch (e) {
+        console.warn("Could not sync theme to onboarding hub iframe", e);
+      }
+    }
   }
 }
 
