@@ -127,7 +127,17 @@ export default function App() {
   });
 
   // Role switching: 'hr_admin' or employee id (e.g. 'hire-2026-001')
-  const [activeRole, setActiveRole] = useState<string>('hr_admin');
+  const [activeRole, setActiveRole] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || 'hr_admin';
+  });
+
+  // Hides the admin header if an employee accesses via direct link
+  const [isDirectLink] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return !!params.get('id');
+  });
+
   const [currentTime, setCurrentTime] = useState<string>('');
   const [empDropdownOpen, setEmpDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -359,6 +369,7 @@ export default function App() {
     <div id="app-root-container" className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none transition-colors duration-300">
       
       {/* Top Header Utilities: Switch Role and Live Clock */}
+      {!isDirectLink && (
       <header id="main-utility-header" className="bg-slate-900 dark:bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           
@@ -494,6 +505,7 @@ export default function App() {
 
         </div>
       </header>
+      )}
 
       {/* Main Container Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-6 space-y-6">
@@ -536,14 +548,21 @@ export default function App() {
               </div>
               
               {/* Back to admin button */}
+              {!isDirectLink && (
               <button
                 id="btn-return-to-admin"
-                onClick={() => setActiveRole('hr_admin')}
+                onClick={() => {
+                  // If they return to admin, they shouldn't be constrained by the direct link state anymore ideally, 
+                  // but we'll just go to hr_admin. To fully exit direct link mode, we might need to remove ?id from URL.
+                  window.history.pushState({}, '', window.location.pathname);
+                  setActiveRole('hr_admin');
+                }}
                 className="bg-white dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-600 dark:text-slate-300 rounded-xl py-1.5 px-3 border border-gray-200 dark:border-slate-700 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5 text-gray-400" />
                 <span>관리자 모드로 돌아가기</span>
               </button>
+              )}
             </div>
 
             <EmployeeDashboard

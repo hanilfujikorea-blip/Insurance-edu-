@@ -345,7 +345,7 @@ export default function HRDashboard({
         <div className="bg-white/60 rounded-md p-3 mb-4 border border-yellow-400/30">
           <p className="text-[11px] text-gray-500 mb-0.5">🔗 접속 링크</p>
           <p className="text-blue-600 font-medium break-all underline underline-offset-2 text-xs">
-            https://onboarding.hanil-fuji.com/invite/{updatedEmp.id}
+            {typeof window !== 'undefined' ? `${window.location.origin}/onboarding/?id=${updatedEmp.id}` : `https://onboarding.hanil-fuji.com/?id=${updatedEmp.id}`}
           </p>
         </div>
         <button className="w-full bg-[#E5CB00] text-[#371D1E] font-bold py-3 rounded-lg text-center hover:bg-[#D4BC00] transition shadow-sm">
@@ -446,7 +446,7 @@ export default function HRDashboard({
         <div className="bg-white/60 rounded-md p-3 mb-4 border border-yellow-400/30">
           <p className="text-[11px] text-gray-500 mb-0.5">🔗 접속 링크</p>
           <p className="text-blue-600 font-medium break-all underline underline-offset-2 text-xs">
-            https://ais-dev/onboarding/ref?id=${emp.id}
+            {typeof window !== 'undefined' ? `${window.location.origin}/onboarding/?id=${emp.id}` : `https://onboarding.hanil-fuji.com/?id=${emp.id}`}
           </p>
         </div>
         <button 
