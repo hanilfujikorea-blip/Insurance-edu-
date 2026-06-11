@@ -120,7 +120,7 @@ export default function OnboardingGuide({ topics }: OnboardingGuideProps) {
                       <img 
                         src={topic.imageUrl} 
                         alt={topic.title} 
-                        className="w-full h-auto object-cover max-h-48"
+                        className="w-full h-auto"
                       />
                     </div>
                   )}
