@@ -1417,17 +1417,48 @@ export default function HRDashboard({
               </div>
 
               <div>
-                <label className="text-gray-500 dark:text-slate-400 font-bold block mb-2 uppercase tracking-wider text-[10px]">대표 이미지 URL (jpg, png 등)</label>
+                <label className="text-gray-500 dark:text-slate-400 font-bold block mb-2 uppercase tracking-wider text-[10px]">대표 이미지 첨부파일 (자동 최적화)</label>
                 <input
-                  type="text"
-                  value={editTopicImageUrl}
-                  onChange={(e) => setEditTopicImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-xs outline-none focus:border-blue-500 dark:text-slate-100 transition-colors"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const dataUrl = event.target?.result as string;
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const max = 800;
+                        if (width > max || height > max) {
+                          if (width > height) { height = Math.round(height * (max / width)); width = max; }
+                          else { width = Math.round(width * (max / height)); height = max; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx?.drawImage(img, 0, 0, width, height);
+                        setEditTopicImageUrl(canvas.toDataURL('image/jpeg', 0.8));
+                      };
+                      img.src = dataUrl;
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 text-xs outline-none focus:border-blue-500 dark:text-slate-100 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                 />
                 {editTopicImageUrl && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <div className="mt-3 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
                     <img src={editTopicImageUrl} alt="Preview" className="max-h-full max-w-full object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                    <button 
+                      onClick={() => setEditTopicImageUrl('')} 
+                      className="absolute top-2 right-2 bg-white/80 dark:bg-black/80 rounded-full p-1.5 shadow hover:bg-white dark:hover:bg-black"
+                      title="이미지 삭제"
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
                   </div>
                 )}
               </div>
