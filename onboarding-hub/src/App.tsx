@@ -263,20 +263,24 @@ export default function App() {
   };
 
   const handleRemoveEmployee = async (id: string) => {
-    if (window.confirm('정말로 해당 신규 입사 후보 정보를 데이터베이스에서 삭제하시겠습니까?')) {
+    if (window.confirm('정말로 해당 신규 입사 후보 정보를 삭제하시겠습니까?')) {
       try {
-        const { error } = await supabase
-          .from('onboarding_employees')
-          .delete()
-          .eq('id', id);
+        // Supabase UUIDs are 36 chars long
+        if (id.length === 36) {
+          const { error } = await supabase
+            .from('onboarding_employees')
+            .delete()
+            .eq('id', id);
 
-        if (error) throw error;
+          if (error) throw error;
+        }
         setEmployees(prev => prev.filter(emp => emp.id !== id));
         if (activeRole === id) {
           setActiveRole('hr_admin');
         }
       } catch (err) {
         console.error("Error deleting employee:", err);
+        alert("삭제 중 오류가 발생했습니다.");
       }
     }
   };
