@@ -2,6 +2,15 @@
   "version": 2,
   "public": true,
   "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/onboarding/(.*)", "destination": "/onboarding/$1" },
     { "source": "/onboarding", "destination": "/onboarding/index.html" },
