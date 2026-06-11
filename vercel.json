@@ -12,8 +12,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/onboarding/(.*)", "destination": "/onboarding/$1" },
     { "source": "/onboarding", "destination": "/onboarding/index.html" },
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/onboarding/", "destination": "/onboarding/index.html" }
   ]
 }
