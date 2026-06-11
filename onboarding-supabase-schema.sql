@@ -19,6 +19,7 @@ create table if not exists public.onboarding_employees (
   completed_missions jsonb not null default '[]'::jsonb,
   sent_at text,
   status text default 'draft',
+  memo text default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

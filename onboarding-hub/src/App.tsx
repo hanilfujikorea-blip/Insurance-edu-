@@ -94,6 +94,7 @@ export default function App() {
             completedMissions: item.completed_missions,
             sentAt: item.sent_at,
             status: item.status,
+            memo: item.memo,
           }));
           setEmployees(normalizeEmployees(mapped));
         } else {
@@ -198,6 +199,7 @@ export default function App() {
           completed_missions: newWorker.completedMissions,
           sent_at: newWorker.sentAt,
           status: newWorker.status,
+          memo: newWorker.memo,
         }])
         .select();
 
@@ -240,6 +242,7 @@ export default function App() {
           completed_missions: updatedEmp.completedMissions,
           sent_at: updatedEmp.sentAt,
           status: updatedEmp.status,
+          memo: updatedEmp.memo,
         })
         .eq('id', updatedEmp.id);
 

@@ -26,6 +26,7 @@ export interface Employee {
   completedMissions: string[]; // 완수한 미션 id 목록
   sentAt: string;
   status: 'draft' | 'sent';
+  memo?: string;
 }
 
 export interface CompanyTemplate {

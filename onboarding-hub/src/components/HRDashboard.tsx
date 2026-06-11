@@ -61,6 +61,7 @@ export default function HRDashboard({
   const [editSalary, setEditSalary] = useState<number>(0);
   const [editLaborText, setEditLaborText] = useState('');
   const [editSalaryText, setEditSalaryText] = useState('');
+  const [editMemo, setEditMemo] = useState('');
 
   // State for editing templates
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export default function HRDashboard({
     setEditSalary(Math.floor(emp.salary / 10000));
     setEditLaborText(emp.laborContract.text);
     setEditSalaryText(emp.salaryContract.text);
+    setEditMemo(emp.memo || '');
   };
 
   const handleEditSave = (emp: Employee) => {
@@ -101,7 +103,8 @@ export default function HRDashboard({
       salaryContract: {
         ...emp.salaryContract,
         text: editSalaryText,
-      }
+      },
+      memo: editMemo,
     };
     onUpdateEmployee(updatedEmp);
     setEditingEmpId(null);
@@ -413,6 +416,7 @@ export default function HRDashboard({
       completedMissions: [],
       sentAt: '',
       status: 'draft',
+      memo: '',
     };
 
     onAddEmployee(newWorker);
@@ -805,6 +809,11 @@ export default function HRDashboard({
                                 <span className="flex items-center gap-1"><Phone className="w-3 h-3 flex-shrink-0" /> {emp.phone}</span>
                                 <span className="flex items-center gap-1"><Mail className="w-3 h-3 flex-shrink-0" /> {emp.email}</span>
                               </span>
+                              {emp.memo && (
+                                <span className="mt-2 text-xs text-slate-500 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                  📝 {emp.memo}
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -923,6 +932,16 @@ export default function HRDashboard({
                                 >
                                   <MessageSquare className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                   <span>발송 시뮬</span>
+                                </button>
+                                
+                                <button
+                                  id={`btn-resend-${emp.id}`}
+                                  onClick={() => handleSendInvitation(emp)}
+                                  title="알림톡 재발송"
+                                  className="p-1 px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 cursor-pointer inline-flex items-center gap-1 transition font-semibold"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>재발송</span>
                                 </button>
 
                                 <button
@@ -1216,6 +1235,17 @@ export default function HRDashboard({
                       />
                       <span className="absolute right-4 top-4 text-gray-400 dark:text-slate-500 font-semibold">만원</span>
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-gray-500 dark:text-slate-400 font-bold block mb-2 uppercase tracking-wider">비고 / 메모장</label>
+                    <textarea
+                      value={editMemo}
+                      onChange={(e) => setEditMemo(e.target.value)}
+                      placeholder="특이사항이나 메모를 입력하세요"
+                      rows={3}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-xs outline-none focus:bg-white focus:border-blue-500 transition-all"
+                    />
                   </div>
 
                   <div>
