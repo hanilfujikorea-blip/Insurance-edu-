@@ -473,11 +473,6 @@ export default function App() {
 
             {/* Top level real clock & Theme Toggle */}
             <div className="hidden lg:flex flex-col items-end gap-2 min-w-[200px]">
-              <div className="flex items-center gap-2 text-slate-400 text-[11px] font-mono font-medium">
-                <Clock className="w-3.5 h-3.5" />
-                <span>{currentTime || '시간 계산 중...'}</span>
-              </div>
-              
               <button
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                 className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all text-[10px] font-bold cursor-pointer"
